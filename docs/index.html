@@ -1,0 +1,451 @@
+<!DOCTYPE html><html><head>
+  <meta charset="utf-8"/>
+  <title>鯖江市条例検索</title>
+  <meta property="og:title" content="鯖江市条例検索">
+  <meta property="og:description" content="鯖江市の条例を検索して表示します（出典:鯖江市 例規集）"/>
+  <link rel="icon" type="image/png" x-href="https://code4sabae.github.io/laws-jp/laws-jp-icon.png"/>
+  <link rel="apple-touch-icon" x-href="https://code4sabae.github.io/laws-jp/laws-jp-icon.png"/>
+  <meta name="twitter:card" content="summary_large_image"/>
+  <meta name="twitter:image" content="https://code4sabae.github.io/laws-jp/laws-jp-update.png"/>
+  <meta property="og:image" content="https://code4sabae.github.io/laws-jp/laws-jp-update.png"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="format-detection" content="telephone=no"/>
+  <style>
+  body {
+    font-family: sans-serif;
+    font-size: 2vmax;
+    margin: 0;
+    color: white;
+    --main-color: #20388E;
+    background-color: var(--main-color);
+  }
+  input[type=text] {
+    max-width: 1000px;
+    width: 60vw;
+    margin: .5em .2em 0.2em .5em;
+    font-size: 24px;
+    border: 2px solid white;
+    line-height: 1.3em;
+    padding: 0.1em .3em;
+  }
+  button {
+    margin: .5em .2em 0em .2em;
+    font-size: 24px;
+    border: 2px solid white;
+    line-height: 1.3em;
+  }
+  h1 {
+    margin: 0;
+    padding: .3em .3em 0.3em .3em;
+    color: white;
+    font-size: 8vw;
+    text-align: center;
+  }
+  .subtitle {
+    color: #ddd;
+    font-size: 2vw;
+    text-align: center;
+  }
+  .subtitle > a {
+    color: #ddd !important;
+    x-text-decoration: none;
+  }
+  #loading {
+    text-align: center;
+  }
+  #selectboxes {
+    text-align: center;
+  }
+  #total {
+    text-align: center;
+    font-size: 80%;
+    margin-top: 1em;
+    margin-bottom: .5em;
+  }
+  h2 {
+    background-color: #F7F8F4;
+    padding: .2em 0em .5em 0em;
+    margin: 0;
+  }
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .item {
+    background-color: #F5F5F5;
+    color: black;
+    padding: 1em;
+    margin: 1em;
+    line-height: 1.8em;
+  }
+  .item a {
+    color: #333 !important;
+  }
+  .url {
+    background-color: var(--main-color);
+    border-radius: 2vw;
+    font-weight: bold;
+    text-align: center;
+    padding: .5em;
+    margin-top: .5em;
+    margin-bottom: 1em;
+  }
+  .url > a {
+    display: block;
+    text-decoration: none;
+    color: white !important;
+  }
+  .searchboxid {
+    margin-top: 1em;
+    text-align: center;
+  }
+  .sitedesc {
+    font-size: 80%;
+    display: inline-block;
+  }
+  .sitedesc > a {
+    color: black !important;
+  }
+  .description {
+  }
+  .tags {
+    text-align: center;
+    margin: .6em;
+  }
+  .tags > div {
+    display: inline-block;
+    border: 1px solid black;
+    padding: 0 .3em;
+    font-size: 80%;
+    line-height: 1.8em;
+    background-color: white;
+    margin: .5em 0.2em;
+    cursor: pointer;
+  }
+  #morebtn {
+    display: none;
+    background-color: white;
+    color: var(--main-color);
+    border-radius: 2vw;
+    font-weight: bold;
+    text-align: center;
+    padding: .5em;
+    margin: .5em 3em 2em 3em;
+    cursor: pointer;
+  }
+  /* banner */
+  #link {
+    margin: 1em;
+    text-align: center;
+  }
+  #link img {
+    width: 60vw;
+    border: 2px solid gray;
+  }
+  
+  /* footer */
+  #src {
+    margin: .5em;
+    text-align: center;
+    font-size: 90%;
+  }
+  #src a {
+    color: white !important;
+  }
+  #note {
+    font-size: 70%;
+    margin: 1em;
+  }
+  #note a {
+    color: white !important;
+  }
+  #share {
+    margin: 0 1em;
+    text-align: center;
+  }
+  #share > * {
+    vertical-align: bottom;
+  }
+  #fb-share-button {
+    display: inline-block;
+    margin: .1em;
+  }
+  #qrcodecontainer {
+    text-align: center;
+    margin-top: 0.5em;
+    margin-bottom: 1em;
+  }
+  </style>
+  <script src="./unzip.min.js"></script>
+  <script type='module'>
+  import util from "https://taisukef.github.io/util/util.mjs";
+
+  window.onload = async function() {
+    const path = "./sabae-reiki-honbun.zip";
+    const bin = await (await fetch(path)).arrayBuffer();
+    const unzip = new Zlib.Unzip(new Uint8Array(bin));
+    const filenames = unzip.getFilenames();
+    const data = [];
+    for (const fn of filenames) {
+      // console.log(fn);
+      const body = new TextDecoder().decode(unzip.decompress(fn));
+      const title = body.match(/<title>(.+)<\/title>/)[1];
+      console.log(title);
+      const myear = body.match(/(明治|大正|昭和|平成|令和)(.+)年/);
+      const nengo = myear[1];
+      const year = nengo + myear[2] + "年";
+      //if (year.indexOf("令和") >= 0)
+      //  console.log(nengo, year, title);
+      // console.log(nengo, year);
+      data.push({title, nengo, year, fn, body });
+    }
+    // console.log(data);
+    
+    /*
+    data.forEach((d) => {
+      const a = update.find((a) => a.xml === d.xml)
+      if (!a) {
+        d.dt = Number.MIN_VALUE;
+        return;
+      }
+      const date = a.update.split(";");
+      const date2 = new Date(date[date.length - 1]);
+      d.dt = date2.getTime();
+      d.lastUpdate = util.formatYMD(date2);
+      d.update = a.update;
+    });
+    data.sort((a, b) => b.dt - a.dt);
+    */
+   
+    // const getAccessURL = (d) => "data/laws/" + d.xml;
+    const getAccessURL = (d) => {
+      const baseurl = "https://www1.g-reiki.net/city.sabae/reiki_honbun/";
+      return baseurl + d.fn;
+    };
+    showSearchPage(data, getAccessURL);
+  };
+  
+  const showSearchPage = (data, getAccessURL) => {
+    const TITLE_NAME = "title";
+    const SORT_KEY = {}; // { nengo: "明大昭平令元" };
+    const SHOW_NAMES = ["nengo", "year"]; // , "LawType"];
+    const SPLIT = [];
+    const EXCEPT_NAMES = [TITLE_NAME];
+    const SHUFFLE = false;
+  
+    for (const name in data[0]) {
+      // if (IGNORE_NAMES.indexOf(name) >= 0) continue
+      if (SHOW_NAMES.indexOf(name) === -1) { continue }
+      const list = []
+      const count = {}
+      for (const d of data) {
+        const v = d[name]
+        if (v && v.length > 0) {
+          if (SPLIT.indexOf(name) >= 0) {
+            const v2 = v.split('/')
+            for (const v3 of v2) {
+              if (list.indexOf(v3) == -1) {
+                list.push(v3)
+                count[v3] = 1
+              } else {
+                count[v3]++
+              }
+            }
+          } else {
+            if (list.indexOf(v) == -1) {
+              list.push(v)
+              count[v] = 1
+            } else {
+              count[v]++
+            }
+          }
+        }
+      }
+      const sortkey = SORT_KEY[name]
+      if (sortkey) {
+        //console.log(name, sortkey)
+        list.sort((a, b) => {
+          const n = sortkey.indexOf(a.charAt(0))
+          const m = sortkey.indexOf(b.charAt(0))
+          if (n != m) {
+            if (n >= 0 && m >= 0) {
+              return n - m
+            } else if (n < 0) {
+              return 1
+            } else if (m < 0) {
+              return -1
+            }
+          }
+          if (a > b) {
+            return 1
+          } else if (a < b) {
+            return -1
+          }
+          return 0
+        })
+      } else {
+        list.sort()
+      }
+      //list.unshift(name)
+      if (list.length > 1) { // && list.length < 30) {
+        const sel = document.createElement("select")
+        const opt = document.createElement('option')
+        opt.textContent = name
+        sel.appendChild(opt)
+        for (const v of list) {
+          if (list.length < 30 || count[v] > data.length / 100) { // over 1%
+            const opt = document.createElement('option')
+            opt.textContent = v
+            sel.appendChild(opt)
+          }
+        }
+        selectboxes.appendChild(sel)
+      }
+    }
+  
+    if (SHUFFLE) util.shuffle(data);
+  
+    const show = function() {
+      const key = searchbox.value.normalize("NFKC")
+      main.innerHTML = ''
+  
+      let hash = key
+      document.location.hash = hash.length > 0 ? '#' + encodeURIComponent(hash) : ""
+      const keys = key.replace(/　/g, ' ').split(' ')
+  
+      const items = []
+      A: for (const d of data) {
+        if (key) {
+          for (const k of keys) {
+            let flg = false
+            for (const name in d) {
+              if (d[name].toString().normalize("NFKC").indexOf(k) >= 0) {
+                flg = true
+                break
+              }
+            }
+            if (!flg)
+              continue A
+          }
+        }
+        for (let i = 0; i < selectboxes.children.length; i++) {
+          const sel = selectboxes.children[i]
+          if (sel.selectedIndex > 0) {
+            const v = sel.value
+            const v2 = d[sel.children[0].value]
+            if (!v2 || v2.indexOf(v) == -1) {
+              continue A
+            }
+          }
+        }
+        items.push(d)
+      }
+      const nppage = 5;
+      for (let i = 0; i < items.length; i++) {
+        const d = items[i]
+        
+        const div = document.createElement('div')
+        div.className = "item"
+  
+        const s = []
+        s.push(`<h2>${d[TITLE_NAME]}</h2>`)
+        for (const name in d) {
+          if (EXCEPT_NAMES.indexOf(name) >= 0)
+            continue
+          const v = d[name]
+          if (v)
+            s.push(`<div class=from>${name}：${v}</div>`)
+        }
+        // s.push(`<div class=from>提供：<a href=${d['提供URL']}>${d['教材シリーズ名']}</a></div>`)
+        s.push(`<div class=url><a href=${getAccessURL(d)} target=_blank>出典元で読む</a></div>`)
+        div.innerHTML = s.join("")
+          
+        div.style.display = i < nppage ? "block" : "none"
+        main.appendChild(div)
+      }
+      morebtn.cnt = nppage
+      morebtn.style.display = items.length > nppage ? "block" : 'none'
+      morebtn.onclick = function() {
+        let cnt = 0
+        for (let i = 0; i < nppage; i++) {
+          const c = main.children[this.cnt + i]
+          if (c) {
+            c.style.display = "block"
+            cnt++
+          }
+        }
+        this.cnt += cnt
+        console.log(cnt, this.cnt)
+        this.style.display = this.cnt == items.length ? "none" : "block"
+      }
+  
+      total.textContent = `ヒット${items.length}件 / 全${data.length}件`
+    }
+    //searchbox.onkeyup = searchbox.onchange = show
+    btnsearch.onclick = show;
+    searchbox.onfocus = function() {
+      this.select()
+    }
+    if (window['btnclear']) {
+      btnclear.onclick = function() {
+        searchbox.value = ''
+        show()
+      }
+    }
+  
+    let chkflg = false
+    if (document.location.hash.length > 1) {
+      let key = decodeURIComponent(document.location.hash.substring(1))
+      /*
+      for (const chk in chktarget) {
+        const chkbox = document.getElementById(chk)
+        const lbl = chkbox.parentElement.textContent
+        if (key.endsWith(" " + lbl)) {
+          key = key.substring(0, key.length - 1 - lbl.length)
+          chkbox.checked = true
+          chkflg = true
+        }
+      }
+      */
+      searchbox.value = key
+    }
+    show()
+    
+    for (let i = 0; i < selectboxes.children.length; i++) {
+      const sel = selectboxes.children[i]
+      sel.onchange = show
+    }
+  }
+  
+  </script>
+  </head>
+  <body>
+  
+    <meta property="og:title" content="鯖江市条例検索">
+    <meta property="og:description" content="鯖江市の条例を検索して表示します（出典:鯖江市 例規集）"/>
+  
+  <div class='header'>
+    <h1 id='title'>鯖江市条例検索</h1>
+    <div class='subtitle'>鯖江市の条例を検索して表示します（出典:<a href=https://www1.g-reiki.net/city.sabae/reiki_menu.html>鯖江市 例規集</a>）</div>
+  </div>
+  
+  <div class="container">
+  <div class="searchboxid">
+    <input type='text' id='searchbox' placeholder="検索する単語を入力"><button id="btnsearch">検索</button>
+  </div>
+  <div id="selectboxes"></div>
+  <div id='total'></div>
+  <div id="main"><div id="loading">読込中...</div></div>
+  <div id='morebtn'>もっとみる</div>
+  
+  <div id="note"></div>
+  
+  <div id="src">
+  Data: <a href=https://www1.g-reiki.net/city.sabae/reiki_menu.html>鯖江市 例規集</a>（data on GitHub）<br>
+  App：<a href=https://fukuno.jig.jp/2888>法令探し</a>（<a href=create.html>作成順バージョン</a>） <a href=https://creativecommons.org/licenses/by/4.0/deed.ja>CC BY</a> <a href='https://fukuno.jig.jp/'>@taisukef</a> (<a href=https://github.com/code4sabae/laws-jp>src on GitHub</a>)<br>
+  base Design: <a href=https://creativecommons.org/licenses/by/4.0/deed.ja>CC BY</a> <a href=https://howmori.org/>HOWMORI</a> <a href=https://twitter.com/howmori>Takuya Yamagata</a><br>
+  </div>
+  
+  </body>
+  </html>
+  
