@@ -1,15 +1,15 @@
 <!DOCTYPE html><html><head>
-  <meta charset="utf-8"/>
+  <meta charset="utf-8">
   <title>鯖江市条例検索</title>
   <meta property="og:title" content="鯖江市条例検索">
-  <meta property="og:description" content="鯖江市の条例を検索して表示します（出典:鯖江市 例規集）"/>
-  <link rel="icon" type="image/png" x-href="https://code4sabae.github.io/laws-jp/laws-jp-icon.png"/>
-  <link rel="apple-touch-icon" x-href="https://code4sabae.github.io/laws-jp/laws-jp-icon.png"/>
-  <meta name="twitter:card" content="summary_large_image"/>
-  <meta name="twitter:image" content="https://code4sabae.github.io/laws-jp/laws-jp-update.png"/>
-  <meta property="og:image" content="https://code4sabae.github.io/laws-jp/laws-jp-update.png"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <meta name="format-detection" content="telephone=no"/>
+  <meta property="og:description" content="鯖江市の条例を検索して表示します（出典:鯖江市 例規集）">
+  <link rel="icon" type="image/png" x-href="https://code4sabae.github.io/laws-sabae/icon.png">
+  <link rel="apple-touch-icon" x-href="https://code4sabae.github.io/laws-sabae/icon.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://code4sabae.github.io/laws-sabae/laws-sabae.png">
+  <meta property="og:image" content="https://code4sabae.github.io/laws-sabae/laws-sabae.png">
+  <meta name="viewport" content="width=device-width">
+  <meta name="format-detection" content="telephone=no">
   <style>
   body {
     font-family: sans-serif;
@@ -181,7 +181,7 @@
   import util from "https://taisukef.github.io/util/util.mjs";
 
   window.onload = async function() {
-    const path = "./sabae-reiki-honbun.zip";
+    const path = "./laws-sabae-body.zip";
     const bin = await (await fetch(path)).arrayBuffer();
     const unzip = new Zlib.Unzip(new Uint8Array(bin));
     const filenames = unzip.getFilenames();
@@ -435,15 +435,20 @@
   </div>
   <div id="selectboxes"></div>
   <div id='total'></div>
-  <div id="main"><div id="loading">読込中...</div></div>
+  <div id="main"><div id="loading">読込＆準備中...(約5MB)</div></div>
   <div id='morebtn'>もっとみる</div>
   
   <div id="note"></div>
   
+
   <div id="src">
-  Data: <a href=https://www1.g-reiki.net/city.sabae/reiki_menu.html>鯖江市 例規集</a>（data on GitHub）<br>
-  App：<a href=https://fukuno.jig.jp/2888>法令探し</a>（<a href=create.html>作成順バージョン</a>） <a href=https://creativecommons.org/licenses/by/4.0/deed.ja>CC BY</a> <a href='https://fukuno.jig.jp/'>@taisukef</a> (<a href=https://github.com/code4sabae/laws-jp>src on GitHub</a>)<br>
-  base Design: <a href=https://creativecommons.org/licenses/by/4.0/deed.ja>CC BY</a> <a href=https://howmori.org/>HOWMORI</a> <a href=https://twitter.com/howmori>Takuya Yamagata</a><br>
+  Data: <a href=https://www1.g-reiki.net/city.sabae/reiki_menu.html>鯖江市 例規集</a>（<a href="https://github.com/code4sabae/laws-sabae">data on GitHub</a>）<br>
+  App：<a href=https://fukuno.jig.jp/2985>鯖江市条例検索</a> <a href=https://creativecommons.org/licenses/by/4.0/deed.ja>CC BY</a> <a href='https://fukuno.jig.jp/'>@taisukef</a> (<a href=https://github.com/code4sabae/laws-sabae>src on GitHub</a>)<br>
+  Lib: <a href=https://github.com/imaya/zlib.js>zlib.js</a><br>
+  Base Design: <a href=https://creativecommons.org/licenses/by/4.0/deed.ja>CC BY</a> <a href=https://howmori.org/>HOWMORI</a> <a href=https://twitter.com/howmori>Takuya Yamagata</a><br>
+  <br>
+  <script type='module' src="https://code4sabae.github.io/leaflet-mjs/qr-code.mjs"></script>
+  <qr-code></qr-code>
   </div>
   
   </body>
