@@ -1,7 +1,7 @@
 import cheerio from "https://dev.jspm.io/cheerio@0.22.0";
 import { fetchByCurl } from "./fetchByCurl.js";
 
-const html = Deno.readTextFileSync("html/index.html");
+const html = await Deno.readTextFile("html/index.html");
 
 const baseurl = "https://www1.g-reiki.net/city.sabae/reiki_taikei/";
 
@@ -12,5 +12,5 @@ dom("#navigation a").each(async (idx, ele) => {
   console.log(a.text(), path);
   const url = baseurl + path;
   const html = await fetchByCurl(url);
-  Deno.writeTextFileSync("html/list/" + path, html);
+  await Deno.writeTextFile("html/list/" + path, html);
 });

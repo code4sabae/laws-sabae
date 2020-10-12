@@ -4,10 +4,10 @@ import { sleep } from "https://code4sabae.github.io/js/sleep.js";
 
 const baseurl = "https://www1.g-reiki.net/city.sabae/reiki_taikei/";
 
-const list = Deno.readDirSync("html/list");
-for (const l of list) {
+const list = await Deno.readDir("html/list");
+for await (const l of list) {
   console.log(l.name);
-  const html = Deno.readTextFileSync("html/list/" + l.name);
+  const html = await Deno.readTextFile("html/list/" + l.name);
   const dom = cheerio.load(html);
   const body = [];
   dom("table a").each((idx, ele) => {
@@ -23,7 +23,7 @@ for (const l of list) {
     console.log(html);
     const path = "html/reiki-honbun" + c.substring(c.lastIndexOf("/"));
     console.log(path);
-    Deno.writeTextFileSync(path, html);
+    await Deno.writeTextFile(path, html);
     await sleep(100);
   }
 }
